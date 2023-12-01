@@ -1,0 +1,114 @@
+<%- include('partials/header.ejs'); %>
+<div class="container">
+  <header>
+    <%- include('partials/tabMenu.ejs'); %>
+  </header>
+  <main>
+    <div class="row">
+      <div class="col-12">
+        Add new record to your own DWN
+      </div>
+    </div>
+
+    <!-- Display the result of the AJAX request here -->
+    <div class="row justify-content-center">
+      <div class="col-12">
+        <div id="resultContainer"></div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-2">
+        Protocol
+      </div>
+      <div class="col-10">
+        <input class="form-control input-sm" name="protocol" id="protocol" value="https://profile.io">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2">
+        Protocol Path
+      </div>
+      <div class="col-10">
+        <input class="form-control input-sm" name="protocolPath" id="protocolPath" value="post">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2">
+        Schema
+      </div>
+      <div class="col-10">
+        <input class="form-control input-sm" name="schema" id="schema" value="https://profile.io/schemas/postSchema">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-2">
+        Record data (Must be JSON format)
+      </div>
+      <div class="col-10">
+        <textarea class="w-100" rows="10" name="data" id="data">{
+            "message": "Hello World! with protocol, protocolpath and schema"
+        }</textarea>
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-12">
+        <button type="button">Submit</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Your JavaScript code
+  $(document).ready(function() {
+    // Attach a click event handler to the button
+    $('button').on('click', function() {
+      // Perform an AJAX request
+      const protocol = $('#protocol').val();
+      const protocolPath = $('#protocolPath').val();
+      const schema = $('#schema').val();
+      const data = $('#data').val().replace("\n", "");
+
+      if(protocol==""){
+        alert('Please provide protocol value');
+        return;
+      } else if(protocolPath==""){
+        alert('Please provide protocolPath value');
+        return;
+      } else if(schema==""){
+        alert('Please provide schema value');
+        return;
+      } else if(data==""){
+        alert('Please provide data value');
+        return;
+      }
+
+      var postData = { 
+          protocol,
+          protocolPath,
+          schema,
+          data,
+        };
+      
+      var serverEndPointURL = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
+
+      $.ajax({
+        url: serverEndPointURL + '/record/save',  // Replace with your server endpoint
+        method: 'POST',  // Adjust the HTTP method as needed
+        contentType: 'application/json',
+        data: JSON.stringify(postData),
+        success: function(data) {
+          // Handle the successful response
+          $('#resultContainer').html('AJAX Response: ' + JSON.stringify(data));
+        },
+        error: function(error) {
+          // Handle the error
+          console.error('AJAX Error:', error);
+        }
+      });
+    });
+  });
+  </script>
+<%- include('partials/footer.ejs'); %>

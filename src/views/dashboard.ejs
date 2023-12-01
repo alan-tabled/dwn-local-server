@@ -1,0 +1,103 @@
+<%- include('partials/header.ejs'); %>
+<div class="container">
+  <header>
+    <%- include('partials/tabMenu.ejs'); %>
+  </header>
+  <main>
+    <div class="row mb-5">
+      <div class="col-1">
+        MyDID
+      </div>
+      <div class="col-11">
+        <input class="form-control input-sm w-75" name="myDid" id="myDid" value="<%= data.myDid %>">
+        <input type="button" onclick="copyToClipboard()" value="Copy My DID">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        Share to another holder DID
+        <input class="form-control input-sm" name="targetDid" id="targetDid">
+        <input type="button" onclick="targetDid.value=''" value="Clear">
+      </div>
+    </div>
+
+    <!-- Display the result of the AJAX request here -->
+    <div class="row  justify-content-center">
+      <div class="col-12">
+        <div id="resultContainer"></div>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-1"></div>
+      <div class="col-11">
+        Data
+      </div>
+    </div>
+
+    <% for (let i = 0; i < Object.keys(records).length; i++) { %>
+    <div class="row mb-2">
+      <div class="col-1">
+        <button type="button" id="shareRecord" value="<%= records[i].recordId %>">Share</button>
+      </div>
+      <div class="col-11 text-left">
+        <%= JSON.stringify(records[i].data) %>
+      </div>
+    </div>
+    <% } %>
+  </main>
+</div>
+
+<script>
+  // Your JavaScript code
+  $(document).ready(function() {
+    // Attach a click event handler to the button
+    $('button').on('click', function() {
+      // Perform an AJAX request
+      const targetDid = $('#targetDid').val();
+      if(targetDid==""){
+        alert('Please provide Share to another holder DID value');
+        return;
+      }
+
+      var postData = { 
+          targetDid: $('#targetDid').val(), // < note use of 'this' here
+          id: $(this).val() 
+        };
+
+      var serverEndPointURL = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
+
+      $.ajax({
+        url: serverEndPointURL + '/record/shareRecordById',  // Replace with your server endpoint
+        method: 'POST',  // Adjust the HTTP method as needed
+        contentType: 'application/json',
+        data: JSON.stringify(postData),
+        success: function(data) {
+          // Handle the successful response
+          $('#resultContainer').html('AJAX Response: ' + JSON.stringify(data));
+        },
+        error: function(error) {
+          // Handle the error
+          console.error('AJAX Error:', error);
+        }
+      });
+    });
+  });
+
+  function copyToClipboard() {
+  // Get the text field
+  var copyText = document.getElementById("myDid");
+
+  // Select the text field
+  copyText.select();
+  copyText.setSelectionRange(0, 99999); // For mobile devices
+
+   // Copy the text inside the text field
+  navigator.clipboard.writeText(copyText.value);
+
+  // Alert the copied text
+  alert("Copied the text: " + copyText.value);
+}
+  </script>
+<%- include('partials/footer.ejs'); %>
